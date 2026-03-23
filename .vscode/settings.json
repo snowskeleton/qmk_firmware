@@ -53,5 +53,6 @@
             "fileMatch": ["keymap.json"],
             "url": "./data/schemas/keymap.jsonschema"
         }
-    ]
+    ],
+    "python-envs.defaultEnvManager": "ms-python.python:system"
 }
