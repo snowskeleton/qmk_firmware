@@ -151,6 +151,6 @@ const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
     [_QWERTY_MACOS] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
     [_LOWER] = { ENCODER_CCW_CW(_______, _______) },
     [_RAISE] = { ENCODER_CCW_CW(KC_BRMD, KC_BRMU) },
-    [_ADJUST] = { ENCODER_CCW_CW(_______, _______) },
+    [_ADJUST] = { ENCODER_CCW_CW(BL_DOWN, BL_UP) },
 };
 #endif
