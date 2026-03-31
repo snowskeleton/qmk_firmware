@@ -148,9 +148,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
 #if defined(ENCODER_MAP_ENABLE)
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
-    [_QWERTY_MACOS] = { ENCODER_CCW_CW(KC_VOLU, KC_VOLD) },
+    [_QWERTY_MACOS] = { ENCODER_CCW_CW(KC_VOLD, KC_VOLU) },
     [_LOWER] = { ENCODER_CCW_CW(_______, _______) },
-    [_RAISE] = { ENCODER_CCW_CW(KC_BRMU, KC_BRMD) },
+    [_RAISE] = { ENCODER_CCW_CW(KC_BRMD, KC_BRMU) },
     [_ADJUST] = { ENCODER_CCW_CW(_______, _______) },
 };
 #endif
