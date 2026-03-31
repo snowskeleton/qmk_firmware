@@ -125,6 +125,8 @@ void backlight_task(void) {}
  */
 static const uint8_t breathing_table[BREATHING_STEPS] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 17, 20, 24, 28, 32, 36, 41, 46, 51, 57, 63, 70, 76, 83, 91, 98, 106, 113, 121, 129, 138, 146, 154, 162, 170, 178, 185, 193, 200, 207, 213, 220, 225, 231, 235, 240, 244, 247, 250, 252, 253, 254, 255, 254, 253, 252, 250, 247, 244, 240, 235, 231, 225, 220, 213, 207, 200, 193, 185, 178, 170, 162, 154, 146, 138, 129, 121, 113, 106, 98, 91, 83, 76, 70, 63, 57, 51, 46, 41, 36, 32, 28, 24, 20, 17, 15, 12, 10, 8, 6, 5, 4, 3, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
+static uint16_t breathing_counter = 0;
+
 static void breathing_callback(virtual_timer_t *vtp, void *p);
 
 bool is_breathing(void) {
@@ -132,6 +134,7 @@ bool is_breathing(void) {
 }
 
 void breathing_enable(void) {
+    breathing_counter = 0;
     /* Update frequency is 256Hz -> 3906us intervals */
     chVTSetContinuous(&breathing_vt, TIME_US2I(3906), breathing_callback, NULL);
 }
@@ -153,7 +156,6 @@ static void breathing_callback(virtual_timer_t *vtp, void *p) {
     uint16_t interval         = (uint16_t)breathing_period * 256 / BREATHING_STEPS;
 
     // resetting after one period to prevent ugly reset at overflow.
-    static uint16_t breathing_counter = 0;
     breathing_counter                 = (breathing_counter + 1) % (breathing_period * 256);
     uint8_t  index                    = breathing_counter / interval % BREATHING_STEPS;
     uint32_t duty                     = cie_lightness(rescale_limit_val(scale_backlight(breathing_table[index] * 256)));

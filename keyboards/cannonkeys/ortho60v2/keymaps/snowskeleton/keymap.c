@@ -16,6 +16,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include QMK_KEYBOARD_H
 
+#define IDLE_TIMEOUT_MS 5000
+
+#define INTENSITY_PER_KEY   100
+#define INTENSITY_MAX       1500
+#define DECAY_AMOUNT        5
+#define DECAY_INTERVAL_MS   10
+
 enum ortho60_layers {
   _QWERTY_MACOS,
   _LOWER,
@@ -120,7 +127,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 };
 
+static uint16_t typing_intensity = 0;
+static uint32_t last_decay_time  = 0;
+
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
+  if (record->event.pressed) {
+      typing_intensity += INTENSITY_PER_KEY;
+      if (typing_intensity > INTENSITY_MAX) typing_intensity = INTENSITY_MAX;
+  }
   switch (keycode) {
         case LOWER:
           if (record->event.pressed) {
@@ -145,6 +159,29 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
       }
     return true;
 };
+
+void housekeeping_task_user(void) {
+    // Decay typing intensity
+    if (timer_elapsed32(last_decay_time) > DECAY_INTERVAL_MS) {
+        last_decay_time = timer_read32();
+        typing_intensity = (typing_intensity > DECAY_AMOUNT)
+            ? typing_intensity - DECAY_AMOUNT : 0;
+    }
+
+    if (last_input_activity_elapsed() > IDLE_TIMEOUT_MS) {
+        if (!is_backlight_breathing()) {
+            backlight_enable_breathing();
+        }
+    } else if (is_backlight_breathing()) {
+        backlight_disable_breathing();
+    } else if (IS_LAYER_ON(_ADJUST)) {
+        backlight_set(get_backlight_level());
+    } else {
+        uint8_t level = (uint8_t)((uint32_t)typing_intensity
+            * BACKLIGHT_LEVELS / INTENSITY_MAX);
+        backlight_set(level);
+    }
+}
 
 #if defined(ENCODER_MAP_ENABLE)
 const uint16_t PROGMEM encoder_map[][NUM_ENCODERS][2] = {
